@@ -1,26 +1,19 @@
-import { Route, Routes } from "react-router";
-import Dashboard from "@/pages/Dashboard";
-import Workouts from "@/pages/Workouts";
-import Exercises from "@/pages/Exercises";
-import Progress from "@/pages/Progress";
-import Settings from "@/pages/Settings";
-import WorkoutLogger from "@/pages/WorkoutLogger";
-import ExerciseLibrary from "@/pages/Exercises";
-import { Layout } from "./components/layout/Layout";
+import { Header } from "@/components/layout/Header";
+import AppRoutes from "@/Routes";
+import { AuthProvider } from "./components/AuthProvider";
+import { SessionContextProvider } from "@supabase/auth-helpers-react";
+import { supabase } from "./lib/supabase-client";
+import { supabaseConfig } from "./lib/supabase-config";
 
 function App() {
+  console.log(supabaseConfig);
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/workouts" element={<Workouts />} />
-        <Route path="/exercises" element={<Exercises />} />
-        <Route path="/progress" element={<Progress />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/workout-logger" element={<WorkoutLogger />} />
-        <Route path="/exercise-library" element={<ExerciseLibrary />} />
-      </Routes>
-    </Layout>
+    <SessionContextProvider supabaseClient={supabase}>
+      <AuthProvider>
+        <Header />
+        <AppRoutes />
+      </AuthProvider>
+    </SessionContextProvider>
   );
 }
 
