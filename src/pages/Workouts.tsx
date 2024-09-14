@@ -1,6 +1,8 @@
 "use client";
 
-import { Play, Calendar, ChevronRight, Dumbbell } from "lucide-react";
+import React, { useState } from "react";
+
+import { ChevronRight, Dumbbell, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,77 +14,87 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-
-// Mock data for recent workouts
-const recentWorkouts = [
-  {
-    id: 1,
-    name: "Full Body Workout",
-    date: "2023-06-15",
-    duration: "45 min",
-    exercises: 8,
-  },
-  {
-    id: 2,
-    name: "Upper Body Focus",
-    date: "2023-06-13",
-    duration: "30 min",
-    exercises: 6,
-  },
-  {
-    id: 3,
-    name: "Leg Day",
-    date: "2023-06-11",
-    duration: "50 min",
-    exercises: 7,
-  },
-  {
-    id: 4,
-    name: "Cardio Blast",
-    date: "2023-06-09",
-    duration: "20 min",
-    exercises: 4,
-  },
-];
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useWorkouts, useCreateWorkout } from "../api/queries";
+import { useAuth } from "../hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "../api/keys";
+import { Workout } from "../api/types";
 
 export default function WorkoutsPage() {
+  const [isNewWorkoutDialogOpen, setIsNewWorkoutDialogOpen] = useState(false);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const {
+    data: workouts,
+    isLoading,
+    error,
+  } = useWorkouts(user?.id ?? "", {
+    enabled: !!user?.id,
+  });
+
+  const createWorkoutMutation = useCreateWorkout({
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workouts(user?.id ?? ""),
+      });
+      setIsNewWorkoutDialogOpen(false);
+    },
+  });
+
+  const handleCreateWorkout = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const newWorkout = {
+      user_id: user?.id ?? "",
+      name: formData.get("workout-name") as string,
+      date: formData.get("workout-date") as string,
+      notes: formData.get("workout-notes") as string,
+      duration: 0, // You might want to add a duration field to the form
+    };
+    createWorkoutMutation.mutate(newWorkout);
+  };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <div className="container px-4 py-8 mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Workouts</h1>
-        <div className="space-x-2">
-          <Button>
-            <Calendar className="w-4 h-4 mr-2" />
-            Schedule
-          </Button>
-          <Button variant="default">
-            <Play className="w-4 h-4 mr-2" />
-            Start New Workout
-          </Button>
-        </div>
-      </div>
+      <h1 className="mb-8 text-3xl font-bold dark:text-white">Workouts</h1>
 
+      {/* Apply dark mode classes to your components */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {recentWorkouts.map((workout) => (
-          <Card key={workout.id}>
+        {workouts?.map((workout: Workout) => (
+          <Card key={workout.id} className="dark:bg-gray-800">
             <CardHeader>
-              <CardTitle>{workout.name}</CardTitle>
+              <CardTitle className="dark:text-white">{workout.name}</CardTitle>
               <CardDescription>
                 {new Date(workout.date).toLocaleDateString()}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <Badge variant="secondary">{workout.duration}</Badge>
-                <span className="text-sm text-muted-foreground">
-                  {workout.exercises} exercises
-                </span>
+                <Badge variant="secondary">{workout.duration} min</Badge>
+                {/* We don't have exercise count in our current data model */}
+                {/* <span className="text-sm text-muted-foreground">{workout.exercises} exercises</span> */}
               </div>
             </CardContent>
             <CardFooter>
-              <Button variant="ghost" className="w-full">
-                View Details
-                <ChevronRight className="w-4 h-4 ml-2" />
+              <Button variant="ghost" className="w-full" asChild>
+                <a href={`/workouts/${workout.id}`}>
+                  View Details
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </a>
               </Button>
             </CardFooter>
           </Card>
@@ -109,6 +121,10 @@ export default function WorkoutsPage() {
               {template}
             </Button>
           ))}
+          <Button variant="outline" className="justify-start h-auto py-4">
+            <Plus className="w-4 h-4 mr-2" />
+            Create Custom Template
+          </Button>
         </div>
       </div>
 
@@ -120,7 +136,7 @@ export default function WorkoutsPage() {
           </a>
         </div>
         <div className="space-y-4">
-          {recentWorkouts.map((workout) => (
+          {workouts?.map((workout: Workout) => (
             <div
               key={workout.id}
               className="flex items-center justify-between p-4 rounded-lg bg-muted"
@@ -140,11 +156,63 @@ export default function WorkoutsPage() {
                   </p>
                 </div>
               </div>
-              <Badge>{workout.duration}</Badge>
+              <Badge>{workout.duration} min</Badge>
             </div>
           ))}
         </div>
       </div>
+
+      <Dialog
+        open={isNewWorkoutDialogOpen}
+        onOpenChange={setIsNewWorkoutDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Start New Workout</DialogTitle>
+            <DialogDescription>
+              Create a new workout session. You can add exercises and track your
+              progress.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreateWorkout} className="space-y-4">
+            <div>
+              <Label htmlFor="workout-name">Workout Name</Label>
+              <Input
+                id="workout-name"
+                name="workout-name"
+                placeholder="e.g., Full Body Workout"
+              />
+            </div>
+            <div>
+              <Label htmlFor="workout-date">Date</Label>
+              <Input
+                id="workout-date"
+                name="workout-date"
+                type="date"
+                defaultValue={new Date().toISOString().split("T")[0]}
+              />
+            </div>
+            <div>
+              <Label htmlFor="workout-notes">Notes</Label>
+              <Textarea
+                id="workout-notes"
+                name="workout-notes"
+                placeholder="Any additional notes for this workout..."
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsNewWorkoutDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">Start Workout</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

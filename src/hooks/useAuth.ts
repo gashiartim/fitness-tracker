@@ -1,36 +1,24 @@
 import { useState, useEffect } from "react";
-import { User } from "@supabase/supabase-js";
+import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase-client";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  console.log(supabase);
-
   useEffect(() => {
-    async function getSession() {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
-        setLoading(false);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    getSession();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        try {
-          setUser(session?.user ?? null);
-          setLoading(false);
-        } catch (e) {
-          console.error(e);
-        }
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
       }
     );
 
@@ -39,13 +27,35 @@ export function useAuth() {
     };
   }, []);
 
-  const signIn = (email: string, password: string) =>
-    supabase.auth.signInWithPassword({ email, password });
+  const signIn = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return { data, error };
+  };
 
-  const signUp = (email: string, password: string) =>
-    supabase.auth.signUp({ email, password });
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  };
 
-  const signOut = () => supabase.auth.signOut();
+  const updateProfile = async ({
+    username,
+    email,
+  }: {
+    username: string;
+    email: string;
+  }) => {
+    const { data, error } = await supabase.auth.updateUser({
+      email,
+      data: { username },
+    });
 
-  return { user, loading, signIn, signUp, signOut };
+    if (error) throw error;
+    return data;
+  };
+
+  return { user, session, loading, signIn, signOut, updateProfile };
 }
