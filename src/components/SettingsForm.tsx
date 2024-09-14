@@ -19,16 +19,17 @@ import { UserProfile } from "@/api/types";
 
 const settingsSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
-  email: z.string().email("Invalid email address"),
-  currentPassword: z.string().optional(),
-  newPassword: z
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .optional(),
-  confirmPassword: z
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .optional(),
+  //   email: z.string().email("Invalid email address"),
+  //   currentPassword: z.string().optional(),
+  //   newPassword: z
+  //     .string()
+  //     .min(6, "Password must be at least 6 characters")
+  //     .optional(),
+  //   confirmPassword: z
+  //     .string()
+  //     .min(6, "Password must be at least 6 characters")
+  //     .optional(),
+
   workoutReminders: z.boolean(),
   goalUpdates: z.boolean(),
   newFeatures: z.boolean(),
@@ -61,15 +62,11 @@ export default function SettingsForm({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
       username: userProfile?.username || "",
-      email: userProfile?.email || "",
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-      workoutReminders: userProfile?.workoutReminders || false,
-      goalUpdates: userProfile?.goalUpdates || false,
-      newFeatures: userProfile?.newFeatures || false,
-      weightUnit: userProfile?.weightUnit || "kg",
-      distanceUnit: userProfile?.distanceUnit || "km",
+      workoutReminders: userProfile?.workout_reminders || false,
+      goalUpdates: userProfile?.goal_updates || false,
+      newFeatures: userProfile?.new_features || false,
+      weightUnit: userProfile?.weight_unit || "kg",
+      distanceUnit: userProfile?.distance_unit || "km",
     },
   });
 
@@ -97,7 +94,7 @@ export default function SettingsForm({
               <p className="text-sm text-red-500">{errors.username.message}</p>
             )}
           </div>
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Controller
               name="email"
@@ -109,7 +106,7 @@ export default function SettingsForm({
             {errors.email && (
               <p className="text-sm text-red-500">{errors.email.message}</p>
             )}
-          </div>
+          </div> */}
         </CardContent>
       </Card>
 
@@ -122,7 +119,7 @@ export default function SettingsForm({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="currentPassword">Current Password</Label>
             <Controller
               name="currentPassword"
@@ -176,7 +173,7 @@ export default function SettingsForm({
                 {errors.confirmPassword.message}
               </p>
             )}
-          </div>
+          </div> */}
         </CardContent>
       </Card>
 

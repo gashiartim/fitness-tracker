@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/lib/supabase-client";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateUserProfile } from "@/api/mutations";
@@ -27,64 +26,70 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const updateSettingsMutation = useMutation<void, Error, SettingsFormData>({
-    mutationFn: async (data) => {
-      if (!user) throw new Error("User not found");
+  const updateSettingsMutation = useMutation<void, Error, Partial<UserProfile>>(
+    {
+      mutationFn: async (data) => {
+        if (!user) throw new Error("User not found");
 
-      // Update user profile
-      await updateUserProfile(user.id, {
-        username: data.username,
-        email: data.email,
-        workoutReminders: data.workoutReminders,
-        goalUpdates: data.goalUpdates,
-        newFeatures: data.newFeatures,
-        weightUnit: data.weightUnit,
-        distanceUnit: data.distanceUnit,
-      } as UserProfile);
+        // Update user profile
+        await updateUserProfile(user.id, {
+          username: data.username,
+          workout_reminders: data.workout_reminders,
+          goal_updates: data.goal_updates,
+          new_features: data.new_features,
+          weight_unit: data.weight_unit,
+          distance_unit: data.distance_unit,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          height: data.height,
+          date_of_birth: data.date_of_birth,
+          id: user.id,
+          user_id: user.id,
+        } as UserProfile);
 
-      // Update password if provided
-      if (data.newPassword) {
-        const { error } = await supabase.auth.updateUser({
-          password: data.newPassword,
+        // // Update password if provided
+        // if (data.newPassword) {
+        //   const { error } = await supabase.auth.updateUser({
+        //     password: data.newPassword,
+        //   });
+        //   if (error) throw error;
+        // }
+
+        // // Update email if changed
+        // if (data.email !== user.email) {
+        //   const { error } = await supabase.auth.updateUser({
+        //     email: data.email,
+        //   });
+        //   if (error) throw error;
+        // }
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+        toast({
+          title: "Settings updated",
+          description: "Your settings have been updated successfully.",
         });
-        if (error) throw error;
-      }
-
-      // Update email if changed
-      if (data.email !== user.email) {
-        const { error } = await supabase.auth.updateUser({
-          email: data.email,
+      },
+      onError: (error: Error) => {
+        console.error(error);
+        toast({
+          title: "Error",
+          description: "Failed to update settings.",
+          variant: "destructive",
         });
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
-      toast({
-        title: "Settings updated",
-        description: "Your settings have been updated successfully.",
-      });
-    },
-    onError: (error: Error) => {
-      console.error(error);
-      toast({
-        title: "Error",
-        description: "Failed to update settings.",
-        variant: "destructive",
-      });
-    },
-  });
+      },
+    }
+  );
 
   const onSubmit = (data: SettingsFormData) => {
-    if (data.newPassword && data.newPassword !== data.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "New passwords do not match.",
-        variant: "destructive",
-      });
-      return;
-    }
-    updateSettingsMutation.mutate(data);
+    updateSettingsMutation.mutate({
+      username: data.username,
+      workout_reminders: data.workoutReminders,
+      goal_updates: data.goalUpdates,
+      new_features: data.newFeatures,
+      weight_unit: data.weightUnit,
+      distance_unit: data.distanceUnit,
+    });
   };
 
   const handleDeleteAccount = async () => {

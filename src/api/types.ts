@@ -1,60 +1,88 @@
-export interface UserProfile {
+// User Profiles
+export type UserProfile = {
   id: string;
-  user_id: string;
+  user_id: string | null;
   username: string;
-  email: string;
-  workoutReminders: boolean;
-  goalUpdates: boolean;
-  newFeatures: boolean;
-  weightUnit: "kg" | "lbs";
-  distanceUnit: "km" | "mi";
-  // ... any other fields
-}
+  height: number | null;
+  date_of_birth: string | null;
+  workout_reminders: boolean;
+  goal_updates: boolean;
+  new_features: boolean;
+  weight_unit: "kg" | "lbs";
+  distance_unit: "km" | "mi";
+  created_at: string | null;
+  updated_at: string | null;
+};
 
-export interface Workout {
+// Exercises
+export type Exercise = {
   id: string;
-  user_id: string;
-  date: string;
   name: string;
-  duration: number; // in minutes
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-}
+  description: string | null;
+  category: string | null;
+  is_custom: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
 
-export interface WorkoutExercise {
+// Workouts
+export type Workout = {
   id: string;
-  workout_id: string;
-  exercise_id: string;
+  user_id: string | null;
+  name: string;
+  date: string;
+  notes: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+// Workout Exercises
+export type WorkoutExercise = {
+  id: string;
+  workout_id: string | null;
+  exercise_id: string | null;
   order_num: number;
-  exercise: {
-    id: string;
-    name: string;
-    // Add other exercise fields as needed
-  };
-  // Add other fields as needed
-}
+  created_at: string | null;
+  updated_at: string | null;
+};
 
-export interface Set {
+// Sets
+export type Set = {
   id: string;
-  workout_exercise_id: string;
-  reps: number;
-  weight: number;
-  // Add other fields as needed
-}
+  workout_exercise_id: string | null;
+  weight: number | null;
+  reps: number | null;
+  rpe: number | null;
+  notes: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
 
-export interface Exercise {
+// Body Measurements
+export type BodyMeasurement = {
   id: string;
-  name: string;
-  description?: string;
-  category?: string;
-  // Add other fields as needed
-}
-
-export interface ProgressData {
-  id?: number;
-  userId?: string;
-  weight: number;
-  bodyFatPercentage: number;
+  user_id: string | null;
   date: string;
-}
+  weight: number | null;
+  body_fat_percentage: number | null;
+  chest: number | null;
+  waist: number | null;
+  hips: number | null;
+  thighs: number | null;
+  biceps: number | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+// Goals
+export type Goal = {
+  id: string;
+  user_id: string | null;
+  name: string;
+  description: string | null;
+  target_date: string | null;
+  achieved: boolean | null;
+  achieved_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+};

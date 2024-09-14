@@ -1,12 +1,5 @@
 import { supabase } from "@/lib/supabase-client";
-import {
-  UserProfile,
-  Workout,
-  WorkoutExercise,
-  Set,
-  Exercise,
-  ProgressData,
-} from "./types";
+import { UserProfile, Workout, WorkoutExercise, Set, Exercise } from "./types";
 
 // User Profile Mutations
 export const updateUserProfile = async (
@@ -115,10 +108,12 @@ export const deleteSet = async (id: string) => {
 };
 
 // Exercise Mutations
-export const createExercise = async (exercise: Omit<Exercise, "id">) => {
+export const createExercise = async (
+  exerciseData: Omit<Exercise, "id" | "created_at" | "updated_at" | "is_custom">
+) => {
   const { data, error } = await supabase
     .from("exercises")
-    .insert(exercise)
+    .insert(exerciseData)
     .single();
 
   if (error) throw error;
@@ -145,35 +140,33 @@ export const deleteExercise = async (id: string) => {
   if (error) throw error;
 };
 
-// Progress Data Mutations
-export const createProgressData = async (
-  progressData: Omit<ProgressData, "id">
-) => {
-  const { data, error } = await supabase
-    .from("progress")
-    .insert(progressData)
-    .single();
+// // Progress Data Mutations
+// export const createProgressData = async (progressData: any) => {
+//   const { data, error } = await supabase
+//     .from("progress")
+//     .insert(progressData)
+//     .single();
 
-  if (error) throw error;
-  return data;
-};
+//   if (error) throw error;
+//   return data;
+// };
 
-export const updateProgressData = async (
-  id: number,
-  progressData: Partial<ProgressData>
-) => {
-  const { data, error } = await supabase
-    .from("progress")
-    .update(progressData)
-    .eq("id", id)
-    .single();
+// export const updateProgressData = async (
+//   id: number,
+//   progressData: Partial<any>
+// ) => {
+//   const { data, error } = await supabase
+//     .from("progress")
+//     .update(progressData)
+//     .eq("id", id)
+//     .single();
 
-  if (error) throw error;
-  return data;
-};
+//   if (error) throw error;
+//   return data;
+// };
 
-export const deleteProgressData = async (id: number) => {
-  const { error } = await supabase.from("progress").delete().eq("id", id);
+// export const deleteProgressData = async (id: number) => {
+//   const { error } = await supabase.from("progress").delete().eq("id", id);
 
-  if (error) throw error;
-};
+//   if (error) throw error;
+// };
