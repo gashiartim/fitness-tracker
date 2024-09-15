@@ -170,3 +170,68 @@ export const deleteExercise = async (id: string) => {
 
 //   if (error) throw error;
 // };
+
+// Create a new goal
+export const createGoal = async (goalData: {
+  name: string;
+  targetValue: number;
+  targetDate: string;
+  description: string;
+}) => {
+  const { data, error } = await supabase
+    .from("goals")
+    .insert([
+      {
+        user_id: (await supabase.auth.getUser()).data.user?.id,
+        name: goalData.name,
+        description: goalData.description,
+        target_date: goalData.targetDate,
+        achieved: false,
+        // We don't have a field for target value in the schema, so you might need to add it or store it in the description
+      },
+    ])
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Update a goal
+export const updateGoal = async ({
+  id,
+  name,
+  targetDate,
+  description,
+  achieved,
+}: {
+  id: string;
+  currentValue?: number;
+  name?: string;
+  targetValue?: number;
+  targetDate?: string;
+  description?: string;
+  achieved?: boolean;
+}) => {
+  const { data, error } = await supabase
+    .from("goals")
+    .update({
+      achieved,
+      achieved_date: achieved ? new Date().toISOString() : null,
+      name,
+      target_date: targetDate,
+      description,
+    })
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Delete a goal
+export const deleteGoal = async (id: string) => {
+  const { data, error } = await supabase.from("goals").delete().eq("id", id);
+
+  if (error) throw error;
+  return data;
+};

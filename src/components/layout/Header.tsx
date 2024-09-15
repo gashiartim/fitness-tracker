@@ -8,6 +8,7 @@ import {
   Settings,
   Moon,
   Sun,
+  FileText,
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,12 @@ const navItems = [
     path: "/exercises",
   },
   { value: "progress", label: "Progress", icon: TrendingUp, path: "/progress" },
+  {
+    value: "log-workout",
+    label: "Log Workout",
+    icon: FileText,
+    path: "/log-workout",
+  },
   { value: "settings", label: "Settings", icon: Settings, path: "/settings" },
 ];
 

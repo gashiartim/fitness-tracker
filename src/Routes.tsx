@@ -11,6 +11,9 @@ import WorkoutHistory from "./pages/WorkoutHistory";
 import NotFound from "./pages/NotFound";
 import { Session } from "@supabase/supabase-js";
 import LoadingScreen from "./components/LoadingScreen";
+import LogWorkout from "./pages/LogWorkout";
+import WorkoutTemplates from "./pages/WorkoutTemplates";
+import Goals from "./pages/Goals";
 
 function AppRoutes() {
   const { session, loading } = useAuth();
@@ -33,6 +36,12 @@ function AppRoutes() {
         <Route path="/workouts/history" element={<WorkoutHistory />} />
         <Route path="/exercises" element={<Exercises />} />
         <Route path="/progress" element={<Progress />} />
+        <Route path="/log-workout" element={<LogWorkout />} />
+        <Route path="/workout-detail" element={<WorkoutDetails />} />
+        <Route path="/goals" element={<Goals />} />
+        <Route path="/workout-templates" element={<WorkoutTemplates />} />
+        <Route path="/progress" element={<Progress />} />
+
         <Route path="/settings" element={<Settings />} />
       </Route>
 

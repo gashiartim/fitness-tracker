@@ -84,7 +84,7 @@ export default function WorkoutsPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <Badge variant="secondary">{workout.duration} min</Badge>
+                {/* <Badge variant="secondary">{workout.duration} min</Badge> */}
                 {/* We don't have exercise count in our current data model */}
                 {/* <span className="text-sm text-muted-foreground">{workout.exercises} exercises</span> */}
               </div>
@@ -156,7 +156,7 @@ export default function WorkoutsPage() {
                   </p>
                 </div>
               </div>
-              <Badge>{workout.duration} min</Badge>
+              <Badge>{workout.notes} exercises</Badge>
             </div>
           ))}
         </div>

@@ -7,7 +7,6 @@ import {
 import { supabase } from "../lib/supabase-client";
 import { queryKeys } from "./keys";
 import { UserProfile, Workout, WorkoutExercise, Set, Exercise } from "./types";
-import { ProgressData } from "./types";
 
 // Fetch user profile
 export const useUserProfile = (
@@ -175,20 +174,32 @@ export const useDeleteWorkout = (
   });
 };
 
-export async function fetchUserProgress(): Promise<ProgressData[]> {
+// Fetch all goals for the current user
+export const fetchGoals = async () => {
   const { data, error } = await supabase
-    .from("progress")
+    .from("goals")
     .select("*")
-    .order("date", { ascending: false });
+    .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
+    .order("created_at", { ascending: false });
 
   if (error) throw error;
   return data;
-}
+};
 
-export async function updateUserProgress(
-  progressData: ProgressData
-): Promise<void> {
-  const { error } = await supabase.from("progress").insert(progressData);
+// export async function fetchUserProgress(): Promise<ProgressData[]> {
+//   const { data, error } = await supabase
+//     .from("progress")
+//     .select("*")
+//     .order("date", { ascending: false });
 
-  if (error) throw error;
-}
+//   if (error) throw error;
+//   return data;
+// }
+
+// export async function updateUserProgress(
+//   progressData: ProgressData
+// ): Promise<void> {
+//   const { error } = await supabase.from("progress").insert(progressData);
+
+//   if (error) throw error;
+// }
