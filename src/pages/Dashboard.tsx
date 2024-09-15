@@ -10,12 +10,11 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
-import { Badge } from "@/components/ui/badge";
 import { useWorkouts } from "../api/queries";
 import { useAuth } from "../hooks/useAuth";
 import { Workout } from "../api/types";
+import { WorkoutStreaks } from "@/components/workouts/WorkoutStreaks";
 
-// Mock data (in a real app, this would come from your API)
 const goals = [
   { id: 1, name: "Increase Bench Press", progress: 75 },
   { id: 2, name: "Lose Body Fat", progress: 60 },
@@ -67,7 +66,7 @@ export default function DashboardPage() {
                       {new Date(workout.date).toLocaleDateString()}
                     </p>
                   </div>
-                  <Badge>{workout.duration} min</Badge>
+                  {/* <Badge>{workout.} min</Badge> */}
                 </li>
               ))}
             </ul>
@@ -139,15 +138,7 @@ export default function DashboardPage() {
           </CardFooter>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Workout Streak</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center">
-            <div className="mb-2 text-4xl font-bold">7 Days</div>
-            <p className="text-muted-foreground">Keep it up!</p>
-          </CardContent>
-        </Card>
+        <WorkoutStreaks />
 
         <Card>
           <CardHeader>

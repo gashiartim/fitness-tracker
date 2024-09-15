@@ -15,7 +15,7 @@ export function useAuth() {
     });
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -57,5 +57,14 @@ export function useAuth() {
     return data;
   };
 
-  return { user, session, loading, signIn, signOut, updateProfile };
+  const signUp = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  return { user, session, loading, signIn, signOut, updateProfile, signUp };
 }

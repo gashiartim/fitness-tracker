@@ -203,3 +203,23 @@ export const fetchGoals = async () => {
 
 //   if (error) throw error;
 // }
+
+export const fetchExercises = async () => {
+  const { data, error } = await supabase
+    .from("exercises")
+    .select("*")
+    .order("name");
+
+  if (error) throw error;
+  return data;
+};
+
+export const getWorkoutHistory = async () => {
+  const { data, error } = await supabase
+    .from("workout_exercises")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
+};

@@ -86,3 +86,18 @@ export type Goal = {
   created_at: string | null;
   updated_at: string | null;
 };
+
+export type WorkoutFormValues = {
+  name: string;
+  date: string;
+  notes?: string;
+  exercises: {
+    exerciseId: string;
+    notes?: string;
+    sets: {
+      weight: number;
+      reps: number;
+      rpe?: number;
+    }[];
+  }[];
+};

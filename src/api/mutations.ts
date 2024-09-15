@@ -1,5 +1,12 @@
 import { supabase } from "@/lib/supabase-client";
-import { UserProfile, Workout, WorkoutExercise, Set, Exercise } from "./types";
+import {
+  UserProfile,
+  Workout,
+  WorkoutExercise,
+  Set,
+  Exercise,
+  WorkoutFormValues,
+} from "./types";
 
 // User Profile Mutations
 export const updateUserProfile = async (
@@ -16,16 +23,54 @@ export const updateUserProfile = async (
   return data;
 };
 
-// Workout Mutations
-export const createWorkout = async (
-  workout: Omit<Workout, "id" | "created_at" | "updated_at">
-) => {
+export const createWorkout = async (workout: WorkoutFormValues) => {
   const { data, error } = await supabase
     .from("workouts")
-    .insert(workout)
+    .insert({
+      name: workout.name,
+      date: workout.date,
+      notes: workout.notes,
+      user_id: (await supabase.auth.getUser()).data.user?.id,
+    })
+    .select()
     .single();
 
   if (error) throw error;
+
+  const workoutId = data.id;
+
+  const exercisePromises = workout.exercises.map(async (exercise, index) => {
+    const { data: exerciseData, error: exerciseError } = await supabase
+      .from("workout_exercises")
+      .insert({
+        workout_id: workoutId,
+        exercise_id: exercise.exerciseId,
+        order_num: index + 1,
+      })
+      .select()
+      .single();
+
+    if (exerciseError) throw exerciseError;
+
+    const exerciseId = exerciseData.id;
+
+    const setPromises = exercise.sets.map(async (set) => {
+      const { error: setError } = await supabase.from("sets").insert({
+        workout_exercise_id: exerciseId,
+        weight: set.weight,
+        reps: set.reps,
+        rpe: set.rpe,
+        notes: "",
+      });
+
+      if (setError) throw setError;
+    });
+
+    await Promise.all(setPromises);
+  });
+
+  await Promise.all(exercisePromises);
+
   return data;
 };
 

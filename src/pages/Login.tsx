@@ -21,9 +21,13 @@ export default function Login() {
       navigate("/");
     } catch (error) {
       console.error(error);
+
+      const typeCastError = error as { message: string };
       toast({
         title: "Error",
-        description: "Failed to sign in. Please check your credentials.",
+        description:
+          typeCastError.message ??
+          "Failed to sign in. Please check your credentials.",
         variant: "destructive",
       });
     }
@@ -53,6 +57,9 @@ export default function Login() {
             />
             <Button type="submit" className="w-full">
               Log In
+            </Button>
+            <Button variant="outline" className="w-full" type="button">
+              <a href="/signup">Sign Up</a>
             </Button>
           </form>
         </CardContent>
