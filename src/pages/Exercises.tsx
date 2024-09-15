@@ -105,7 +105,7 @@ export default function ExerciseLibrary() {
               <DialogTitle>Add Custom Exercise</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="name">Exercise Name</Label>
                 <Controller
                   name="name"
@@ -116,7 +116,7 @@ export default function ExerciseLibrary() {
                   <p className="text-sm text-red-500">{errors.name.message}</p>
                 )}
               </div>
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="category">Category</Label>
                 <Controller
                   name="category"
@@ -129,7 +129,7 @@ export default function ExerciseLibrary() {
                   </p>
                 )}
               </div>
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="description">Description (Optional)</Label>
                 <Controller
                   name="description"

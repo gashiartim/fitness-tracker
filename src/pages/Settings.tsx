@@ -19,6 +19,7 @@ import { UserProfile } from "@/api/types";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import LoadingScreen from "@/components/LoadingScreen";
 import SettingsForm, { SettingsFormData } from "@/components/SettingsForm";
+import { supabase } from "@/lib/supabase-client";
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -26,69 +27,74 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const updateSettingsMutation = useMutation<void, Error, Partial<UserProfile>>(
-    {
-      mutationFn: async (data) => {
-        if (!user) throw new Error("User not found");
+  const updateSettingsMutation = useMutation<
+    void,
+    Error,
+    Partial<UserProfile & { newPassword: string; email: string }>
+  >({
+    mutationFn: async (data) => {
+      if (!user) throw new Error("User not found");
 
-        // Update user profile
-        await updateUserProfile(user.id, {
-          username: data.username,
-          workout_reminders: data.workout_reminders,
-          goal_updates: data.goal_updates,
-          new_features: data.new_features,
-          weight_unit: data.weight_unit,
-          distance_unit: data.distance_unit,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          height: data.height,
-          date_of_birth: data.date_of_birth,
-          id: user.id,
-          user_id: user.id,
-        } as UserProfile);
+      // Update user profile
+      await updateUserProfile(user.id, {
+        username: data.username,
+        workout_reminders: data.workout_reminders,
+        goal_updates: data.goal_updates,
+        new_features: data.new_features,
+        weight_unit: data.weight_unit,
+        distance_unit: data.distance_unit,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        height: data.height,
+        date_of_birth: data.date_of_birth,
+        id: user.id,
+        user_id: user.id,
+      } as UserProfile);
 
-        // // Update password if provided
-        // if (data.newPassword) {
-        //   const { error } = await supabase.auth.updateUser({
-        //     password: data.newPassword,
-        //   });
-        //   if (error) throw error;
-        // }
-
-        // // Update email if changed
-        // if (data.email !== user.email) {
-        //   const { error } = await supabase.auth.updateUser({
-        //     email: data.email,
-        //   });
-        //   if (error) throw error;
-        // }
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["userProfile"] });
-        toast({
-          title: "Settings updated",
-          description: "Your settings have been updated successfully.",
+      // Update password if provided
+      if (data.newPassword) {
+        console.log("Updating password");
+        const { error } = await supabase.auth.updateUser({
+          password: data.newPassword,
         });
-      },
-      onError: (error: Error) => {
-        console.error(error);
-        toast({
-          title: "Error",
-          description: "Failed to update settings.",
-          variant: "destructive",
+        if (error) throw error;
+      }
+
+      // // Update email if changed
+      if (data.email !== user.email) {
+        const { error } = await supabase.auth.updateUser({
+          email: data.email,
         });
-      },
-    }
-  );
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      toast({
+        title: "Settings updated",
+        description: "Your settings have been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to update settings.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const onSubmit = (data: SettingsFormData) => {
     updateSettingsMutation.mutate({
+      email: data.email,
       username: data.username,
       workout_reminders: data.workoutReminders,
       goal_updates: data.goalUpdates,
       new_features: data.newFeatures,
       weight_unit: data.weightUnit,
       distance_unit: data.distanceUnit,
+      newPassword: data.newPassword,
     });
   };
 
