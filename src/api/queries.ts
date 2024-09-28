@@ -6,7 +6,15 @@ import {
 } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase-client";
 import { queryKeys } from "./keys";
-import { UserProfile, Workout, WorkoutExercise, Set, Exercise } from "./types";
+import {
+  UserProfile,
+  Workout,
+  WorkoutExercise,
+  Set,
+  Exercise,
+  WorkoutDetailsResponse,
+  WorkoutDetail,
+} from "./types";
 
 // Fetch user profile
 export const useUserProfile = (
@@ -222,4 +230,38 @@ export const getWorkoutHistory = async () => {
 
   if (error) throw error;
   return data;
+};
+export const getWorkoutDetails = async (workoutId: string) => {
+  const { data, error } = await supabase
+    .from("workouts")
+    .select(
+      `
+      *,
+      workout_exercises (
+        *,
+        exercise:exercises (
+          *
+        ),
+        sets (*)
+      )
+    `
+    )
+    .eq("id", workoutId)
+    .single();
+
+  if (error) throw error;
+  return data as WorkoutDetail;
+};
+
+export const useWorkoutDetails = (
+  workoutId: string,
+  options?: Partial<
+    UseQueryOptions<WorkoutDetailsResponse, Error, WorkoutDetailsResponse>
+  >
+) => {
+  return useQuery<WorkoutDetailsResponse, Error, WorkoutDetailsResponse>({
+    queryKey: queryKeys.workoutDetails(workoutId),
+    queryFn: () => getWorkoutDetails(workoutId),
+    ...options,
+  });
 };

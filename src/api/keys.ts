@@ -5,6 +5,7 @@ export const queryKeys = {
     ["workoutExercises", workoutId] as const,
   sets: (workoutExerciseId: string) => ["sets", workoutExerciseId] as const,
   exercises: () => ["exercises"] as const,
+  workoutDetails: (workoutId: string) => ["workoutDetails", workoutId] as const,
 };
 
 export const progressKeys = {

@@ -66,7 +66,7 @@ export default function SignupPage() {
     setIsLoading(true);
     try {
       await signUp(data.email, data.password);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       toast({
         title: "Account created successfully!",
         description: "You can now log in with your new account.",

@@ -1,3 +1,5 @@
+import { getWorkoutDetails } from "./queries";
+
 // User Profiles
 export type UserProfile = {
   id: string;
@@ -98,6 +100,47 @@ export type WorkoutFormValues = {
       weight: number;
       reps: number;
       rpe?: number;
+    }[];
+  }[];
+};
+
+export type WorkoutDetailsResponse = Awaited<
+  ReturnType<typeof getWorkoutDetails>
+>;
+
+export type WorkoutDetail = {
+  id: string;
+  user_id: string;
+  name: string;
+  date: string;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+  workout_exercises: {
+    id: string;
+    order_num: number;
+    created_at: string;
+    updated_at: string;
+    workout_id: string;
+    exercise_id: string;
+    exercise: {
+      id: string;
+      name: string;
+      category: string;
+      is_custom: boolean;
+      created_at: string;
+      updated_at: string;
+      description: string;
+    };
+    sets: {
+      id: string;
+      rpe: number;
+      reps: number;
+      notes: string;
+      weight: number;
+      created_at: string;
+      updated_at: string;
+      workout_exercise_id: string;
     }[];
   }[];
 };
