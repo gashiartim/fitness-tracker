@@ -224,8 +224,18 @@ export const fetchExercises = async () => {
 
 export const getWorkoutHistory = async () => {
   const { data, error } = await supabase
-    .from("workout_exercises")
-    .select("*")
+    .from("workouts")
+    .select(
+      `
+      *,
+      workout_exercises (
+        *,
+        exercise:exercises (*),
+        sets (*)
+      )
+    `
+    )
+    .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
